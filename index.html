@@ -12,7 +12,7 @@
         .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 15px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        #qrcode { margin-top: 25px; display: flex; justify-content: center; }
+        #qrcode { margin-top: 25px; display: flex; justify-content: center; min-height: 256px; }
         #qrcode img { border: 10px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         #downloadBtn { background: #28a745; margin-top: 15px; display: none; }
     </style>
@@ -30,45 +30,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-    <script>
-        let qrcode;
-
-        function generateQR() {
-            const url = document.getElementById('urlInput').value;
-            const container = document.getElementById('qrcode');
-            const downloadBtn = document.getElementById('downloadBtn');
-
-            container.innerHTML = ""; // Reset
-            
-            if(url.trim() !== "" && url !== "https://") {
-                qrcode = new QRCode(container, {
-                    text: url,
-                    width: 256,
-                    height: 256
-                });
-                
-                // Even wachten tot de library de <img> heeft gemaakt
-                setTimeout(() => {
-                    downloadBtn.style.display = "block";
-                }, 100);
-            } else {
-                alert("Voer een geldige URL in!");
-            }
-        }
-
-        function downloadQR() {
-            const qrImg = document.querySelector('#qrcode img');
-            if (qrImg) {
-                const link = document.createElement('a');
-                link.download = 'mijn-qrcode.png';
-                link.href = qrImg.src;
-                link.click();
-            }
-        }
-
-        // Service Worker Registratie
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js')
-                .then(() => console.log("PWA actief"));
-        }
+    
+    <script src="qrcode.js"></script>
+</body>
+</html>
