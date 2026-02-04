@@ -1,35 +1,51 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SnelQR PWA</title>
-    <link rel="manifest" href="manifest.json">
-    <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        input { padding: 10px; width: 80%; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        #qrcode { margin-top: 20px; }
-    </style>
-</head>
-<body>
-    <h1>QR Generator</h1>
-    <input type="url" id="urlInput" placeholder="Plak hier je URL...">
-    <button onclick="generateQR()">Maak QR Code</button>
-    <div id="qrcode"></div>
+let qrcodeInstance = null;
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script>
-        function generateQR() {
-            const url = document.getElementById('urlInput').value;
-            const container = document.getElementById('qrcode');
-            container.innerHTML = ""; // Maak vorige QR leeg
-            if(url) {
-                new QRCode(container, url);
-            } else {
-                alert("Voer eerst een URL in!");
+function generateQR() {
+    const url = document.getElementById('urlInput').value;
+    const container = document.getElementById('qrcode');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    // Maak de container leeg voor een nieuwe QR
+    container.innerHTML = ""; 
+    
+    if(url.trim() !== "" && url !== "https://") {
+        // Maak de nieuwe QR-code aan
+        qrcodeInstance = new QRCode(container, {
+            text: url,
+            width: 256,
+            height: 256,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+        
+        // Wacht heel even tot de image is gegenereerd en toon dan de downloadknop
+        setTimeout(() => {
+            const qrImg = container.querySelector('img');
+            if(qrImg) {
+                downloadBtn.style.display = "block";
             }
-        }
-    </script>
-</body>
-</html>
+        }, 300);
+    } else {
+        alert("Voer a.u.b. een geldige URL in!");
+    }
+}
+
+function downloadQR() {
+    const qrImg = document.querySelector('#qrcode img');
+    if (qrImg) {
+        const link = document.createElement('a');
+        link.download = 'mijn-qrcode.png';
+        link.href = qrImg.src;
+        link.click();
+    }
+}
+
+// Service Worker Registratie (voor PWA installatie)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log("Service Worker geregistreerd", reg))
+            .catch(err => console.log("Service Worker mislukt", err));
+    });
+}
